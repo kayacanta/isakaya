@@ -1457,7 +1457,7 @@ function girisYap() {
 
   const liste = (db.kullanicilar && db.kullanicilar.length) ? db.kullanicilar : KULLANICILAR_SABIT;
   const kullanici = liste.find(k =>
-    k.ad.toLowerCase() === kullaniciAdi.toLowerCase() && k.sifre === sifre
+    k.ad.toLocaleLowerCase('tr-TR') === kullaniciAdi.toLocaleLowerCase('tr-TR') && k.sifre === sifre
   );
 
   if (!kullanici) {
@@ -1489,14 +1489,40 @@ function girisYap() {
     const sec = document.getElementById('s-'+tabId);
     if(sec) sec.classList.add('on');
   }
+
+  // Google Sheets bağlıysa taze veri çek
+  if (db.gsURL) {
+    toast('Veriler Google Sheets ten yukleniyor...','ok');
+    gsSyncTumunu().catch(e => toast('Sheets bağlantı hatası','er'));
+  }
 }
 
 function cikisYap() {
   if (!confirm('Çıkış yapmak istiyor musunuz?')) return;
+  // Korunacak veriler
+  const kullanicilarYedek = JSON.parse(JSON.stringify(db.kullanicilar || []));
+  const gsURLYedek = db.gsURL || '';
+  const kurlarYedek = JSON.parse(JSON.stringify(db.kurlar || []));
+  // localStorage tamamen sil
+  localStorage.removeItem('stoksat_v2');
+  // db'yi sıfırla ama önemli ayarları koru
+  db = {
+    stok:[], satislar:[], giderler:[], personeller:[],
+    gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'],
+    transferler:[], kurlar:kurlarYedek, ceksenetler:[],
+    gsURL:gsURLYedek,
+    kullanicilar: kullanicilarYedek.length ? kullanicilarYedek : [
+      {ad:'Sude',  sifre:'SK.0707', rol:'admin'},
+      {ad:'Deniz', sifre:'DA.0707', rol:'admin'},
+      {ad:'İsa',   sifre:'İK.0707', rol:'muhasebe'}
+    ]
+  };
+  localStorage.setItem('stoksat_v2', JSON.stringify(db));
   aktifKullanici = null;
   document.getElementById('loginScreen').classList.remove('hide');
   document.getElementById('loginUser').value = '';
   document.getElementById('loginPass').value = '';
+  toast('Çıkış yapıldı');
 }
 
 function yetkiUygula() {
@@ -1568,6 +1594,7 @@ window.addEventListener('DOMContentLoaded', () => {
     kaydet();
   }
   // Login ekranı — sayfa yüklenince otomatik göster
+  // NOT: Veri yükleme girisYap() içinde yapılır (Sheets'ten taze çekilir)
   document.getElementById('loginScreen').classList.remove('hide');
   document.getElementById('gtar').value = ymd(new Date());
   sv('trTarih', ymd(new Date()));
