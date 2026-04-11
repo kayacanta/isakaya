@@ -546,7 +546,7 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
       <input type="hidden" id="sbirim" value="Adet">
       <div class="fg"><label>Maliyet (USD) ✱</label><input type="number" id="sa" placeholder="0.00" step="0.01"></div>
       <input type="hidden" id="sp" value="USD">
-      <div class="fg"><label>Kategori</label><input id="skat" placeholder="Kategori"></div>
+      <input type="hidden" id="skat" value="">
       <div class="fg" style="grid-column:span 2;"><label>Açıklama</label><input id="saç" placeholder="Not..."></div>
     </div>
     <div class="row">
@@ -569,9 +569,9 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
     <div class="tw"><table>
       <thead><tr>
         <th>Barkod</th><th>Firma</th><th>Model</th>
-        <th>Miktar</th><th>Maliyet USD</th><th>Kat.</th><th>İşlem</th>
+        <th>Miktar</th><th>Maliyet USD</th><th>İşlem</th>
       </tr></thead>
-      <tbody id="stokBody"><tr><td colspan="7" class="empty">Henüz ürün yok</td></tr></tbody>
+      <tbody id="stokBody"><tr><td colspan="6" class="empty">Henüz ürün yok</td></tr></tbody>
     </table></div>
   </div>
 </div>
@@ -671,7 +671,14 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
               <div class="ci"><span class="cl tl">₺TL</span><input type="number" id="pKTL" placeholder="0.00" step="0.01" oninput="paraUstu()"></div>
               <div class="ci"><span class="cl usd">$USD</span><input type="number" id="pKUSD" placeholder="0.00" step="0.01" oninput="paraUstu()"></div>
               <div class="ci"><span class="cl eur">€EUR</span><input type="number" id="pKEUR" placeholder="0.00" step="0.01" oninput="paraUstu()"></div>
-              <div class="ci"><span class="cl rub">₽RUB</span><input type="number" id="pKRUB" placeholder="0.00" step="0.01" oninput="paraUstu()"></div>
+            </div>
+          </div>
+
+          <!-- ANZER VEZNE KUTUSU -->
+          <div style="background:var(--ink3);border:1px solid var(--rub);border-radius:var(--r2);padding:12px;margin-bottom:8px;">
+            <div style="font-size:11px;font-weight:700;color:var(--rub);margin-bottom:8px;display:flex;align-items:center;gap:6px;">🏦 ANZER VEZNE <span style="font-size:9px;color:var(--txt3);font-weight:400;">(₽ RUB — o günün kuruyla USD'ye çevrilir)</span></div>
+            <div class="cur-row">
+              <div class="ci" style="border-color:var(--rub);"><span class="cl rub">₽RUB</span><input type="number" id="pANZER" placeholder="0.00" step="0.01" oninput="paraUstu()"></div>
             </div>
           </div>
 
@@ -707,7 +714,7 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
     <div class="grid gauto" style="margin-bottom:10px;">
       <div class="fg"><label>Grup ✱</label>
         <select id="gg">
-          <option>Eleman Giderleri</option><option>Yemek Giderleri</option>
+          <option>Yemek Giderleri</option>
           <option>Kira</option><option>Faturalar</option><option>Nakliye</option><option>Diğer</option>
         </select>
       </div>
@@ -771,15 +778,24 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
     </div>
   </div>
 
-  <!-- Transfer -->
-  <div class="card">
+  <!-- Anzer Kasası -->
+  <div class="card" style="border-color:var(--rub);">
     <div class="card-head">
-      🔄 Vezneden Ana Kasaya Transfer
-      <button class="btn btn-mint btn-sm" onclick="openMo('moTransfer')">✚ Yeni Transfer</button>
+      <span style="color:var(--rub);">🏦 Anzer Kasası</span>
+      <span style="font-size:11px;color:var(--txt2);font-weight:400;">Anzer Vezne Satışlar</span>
+    </div>
+    <div class="stats" id="anzerKasaStats"></div>
+  </div>
+
+  <!-- Anzer Kasası Transfer -->
+  <div class="card" style="border-color:var(--rub);">
+    <div class="card-head">
+      <span style="color:var(--rub);">🔄 Anzer Kasası → Ana Kasa Transfer (USD)</span>
+      <button class="btn btn-sm" style="background:var(--rub);color:#fff;" onclick="openMo('moTransfer')">✚ Transfer</button>
     </div>
     <div class="tw"><table>
-      <thead><tr><th>Tarih</th><th>Para Birimi</th><th>Tutar</th><th>Açıklama</th><th>İşlem</th></tr></thead>
-      <tbody id="transferBody"><tr><td colspan="5" class="empty">Transfer yok</td></tr></tbody>
+      <thead><tr><th>Tarih</th><th>₽ RUB</th><th>$ USD</th><th>Kur</th><th>Açıklama</th><th>İşlem</th></tr></thead>
+      <tbody id="transferBody"><tr><td colspan="6" class="empty">Transfer yok</td></tr></tbody>
     </table></div>
   </div>
 </div>
@@ -944,6 +960,7 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
     <button class="btn btn-ghost btn-sm" id="rTab-firma" onclick="raporTab('firma',this)">🏢 Firma Detay</button>
     <button class="btn btn-ghost btn-sm" id="rTab-personel" onclick="raporTab('personel',this)">👤 Personel Detay</button>
     <button class="btn btn-ghost btn-sm" id="rTab-gider" onclick="raporTab('gider',this)">💸 Gider Detay</button>
+    <button class="btn btn-ghost btn-sm" id="rTab-kasa" onclick="raporTab('kasa',this)">🏦 Kasa Raporu</button>
   </div>
 
   <!-- ── SATIŞ DETAY ── -->
@@ -1015,6 +1032,25 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
         <thead><tr><th>Tarih</th><th>Grup</th><th>Açıklama</th><th>Tutar</th><th>Not</th></tr></thead>
         <tbody id="rGiderBody"><tr><td colspan="5" class="empty">Önce tarih seçip Oluştur'a basın</td></tr></tbody>
       </table></div>
+    </div>
+  </div>
+
+  <!-- ── KASA RAPORU ── -->
+  <div id="rPanel-kasa" style="display:none;">
+    <div class="card" style="border-color:var(--rub);">
+      <div class="card-head">
+        <span style="color:var(--rub);">🏦 Anzer Kasası Raporu</span>
+      </div>
+      <div class="stats" id="rAnzerStats" style="margin-bottom:14px;"></div>
+      <div class="tw">
+        <table>
+          <thead><tr>
+            <th>Tarih</th><th>Saat</th>
+            <th>₽ RUB Tutar</th><th>$ USD Tutar</th><th>Kur (1$=₽)</th>
+          </tr></thead>
+          <tbody id="rAnzerBody"><tr><td colspan="5" class="empty">Önce tarih seçip Oluştur'a basın</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -1109,7 +1145,7 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
       <input type="hidden" id="eBi" value="Adet">
       <div class="fg"><label>Maliyet (USD)</label><input type="number" id="eAl" step="0.01"></div>
       <input type="hidden" id="ePa" value="USD">
-      <div class="fg"><label>Kategori</label><input id="eKt"></div>
+      <input type="hidden" id="eKt" value="">
     </div>
     <div class="row">
       <button class="btn btn-sky" onclick="stokGuncelle()">💾 Güncelle</button>
@@ -1247,27 +1283,24 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
 <!-- Transfer Modal -->
 <div class="mo" id="moTransfer">
   <div class="mo-box">
-    <div class="mo-title">🔄 Vezneden Ana Kasaya Transfer</div>
+    <div class="mo-title" style="color:var(--rub);">🏦 Anzer Kasası → Ana Kasa Transfer</div>
     <input type="hidden" id="trEditId">
+    <input type="hidden" id="trPara" value="USD">
+    <div style="background:rgba(240,82,82,.08);border:1px solid var(--rub);border-radius:var(--r2);padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--txt2);">
+      Transfer edilecek <strong style="color:var(--usd);">USD tutarı</strong> girilir. Ana Kasaya USD eklenir, Anzer Kasasından ortalama kur üzerinden RUB düşülür.
+    </div>
     <div class="grid g2" style="margin-bottom:12px;">
       <div class="fg"><label>Tarih ✱</label><input type="date" id="trTarih"></div>
-      <div class="fg"><label>Para Birimi ✱</label>
-        <select id="trPara" onchange="trRubBilgi()">
-          <option value="USD">🇺🇸 USD</option>
-          <option value="TL">🇹🇷 TL</option>
-          <option value="EUR">🇪🇺 EUR</option>
-          <option value="RUB">₽ RUB</option>
-          <option value="TNG">₸ TNG</option>
-        </select>
-      </div>
-      <div class="fg"><label>Tutar ✱</label><input type="number" id="trTutar" placeholder="0.00" step="0.01" oninput="trRubBilgi()"></div>
-      <div id="trRubInfo" style="display:none;font-size:11px;color:var(--sun);padding:6px 10px;background:rgba(245,166,35,.1);border-radius:6px;margin-top:4px;">
-        ⚠ RUB seçildi — tutar günün kuruyla USD'ye çevrilerek kaydedilecek
-      </div>
-      <div class="fg"><label>Açıklama</label><input id="trAciklama" placeholder="Açıklama..."></div>
+      <div class="fg"><label>$ USD Tutar ✱</label><input type="number" id="trTutar" placeholder="0.00" step="0.01" oninput="trRubHesapla()"></div>
     </div>
+    <div id="trRubGoster" style="display:none;background:rgba(240,82,82,.08);border:1px solid var(--rub);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--txt2);margin-bottom:4px;">Anzer'den Düşülecek ₽ RUB (Ort. Kur)</div>
+      <div id="trRubVal" style="font-family:var(--ff-mono);font-size:18px;color:var(--rub);font-weight:700;">₽0.00</div>
+      <div id="trRubKurVal" style="font-size:10px;color:var(--txt3);margin-top:2px;"></div>
+    </div>
+    <div class="fg" style="margin-bottom:14px;"><label>Açıklama</label><input id="trAciklama" placeholder="Açıklama..."></div>
     <div class="row">
-      <button class="btn btn-mint" onclick="transferKaydet()">💾 Kaydet</button>
+      <button class="btn btn-sm" style="background:var(--rub);color:#fff;" onclick="transferKaydet()">💾 Kaydet</button>
       <button class="btn btn-ghost" onclick="closeMo('moTransfer')">İptal</button>
     </div>
   </div>
@@ -1281,7 +1314,7 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
     <div class="grid gauto" style="margin-bottom:12px;">
       <div class="fg"><label>Grup</label>
         <select id="gdGrup">
-          <option>Eleman Giderleri</option><option>Yemek Giderleri</option>
+          <option>Yemek Giderleri</option>
           <option>Kira</option><option>Faturalar</option><option>Nakliye</option><option>Diğer</option>
         </select>
       </div>
@@ -1508,7 +1541,7 @@ function paraToUSD(tutar, para, tarih) {
   if (!oran) return tutar; // kur yoksa olduğu gibi bırak
   return tutar / oran;
 }
-let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Eleman Giderleri','Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'',
+let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'',
   kullanicilar:[
     {ad:'Sude',  sifre:'SK.0707', rol:'admin'},
     {ad:'Deniz', sifre:'DA.0707', rol:'admin'},
@@ -1576,7 +1609,7 @@ function nav(id, el) {
   if(id==='rapor') { tarihAyarla('ay'); personelRaporSelectGuncelle(); }
   if(id==='satis') satisSelRender();
   if(id==='personel') { personelListeRender(); }
-  if(id==='kasa') kasaRender();
+  if(id==='kasa') { kasaRender(); }
   if(id==='doviz') dovizRender();
   if(id==='ceksenet') { if(!db.ceksenetler) db.ceksenetler=[]; csRender(); csFormSifirla(); }
   if(id==='kullanici') kullaniciListeRender();
@@ -1719,7 +1752,7 @@ function stokRender() {
   );
   document.getElementById('stokSayac').textContent = db.stok.length+' ürün';
   const tbody = document.getElementById('stokBody');
-  if (!rows.length) { tbody.innerHTML='<tr><td colspan="7" class="empty">Kayıt yok</td></tr>'; return; }
+  if (!rows.length) { tbody.innerHTML='<tr><td colspan="6" class="empty">Kayıt yok</td></tr>'; return; }
   tbody.innerHTML = rows.map(s=>{
     const idx = db.stok.indexOf(s);
     const low = s.miktar<=3;
@@ -1729,7 +1762,6 @@ function stokRender() {
       <td class="mono">${s.model||'—'}</td>
       <td><span class="badge ${low?'b-low':'b-ok'}">${s.miktar} Adet</span></td>
       <td class="mono t-usd">$${paraToUSD(Number(s.alis),s.para).toFixed(2)}</td>
-      <td>${s.kategori||'—'}</td>
       <td><div class="row">
         <button class="btn btn-ghost btn-xs" onclick="stokDuzenle(${idx})">✏</button>
         <button class="btn btn-ruby btn-xs" onclick="stokSil(${idx})">🗑</button>
@@ -1855,18 +1887,34 @@ async function csvImport() {
 }
 
 function csvIndir() {
-  // Format: Barkod,Firma,Model,Miktar,Birim,Alış,Kategori — içe aktarımla birebir uyumlu
-  const h = '\uFEFFBarkod,Firma,Model,Miktar,Birim,Alis,Kategori\n';
-  const rows = db.stok.map(s => [
-    s.barkod||'',
-    (s.firma||'').replace(/,/g,' '),
-    (s.model||'').replace(/,/g,' '),
-    s.miktar||0,
-    'Adet',
-    paraToUSD(Number(s.alis), s.para).toFixed(2),
-    (s.kategori||'').replace(/,/g,' ')
-  ].join(',')).join('\n');
-  dl(h+rows, 'stok-listesi.csv', 'text/csv;charset=utf-8');
+  if(!db.stok||!db.stok.length){toast('Stok listesi boş','er');return;}
+  try {
+    const satirlar = ['Barkod,Firma,Model,Miktar,Birim,Alis,Kategori'];
+    db.stok.forEach(s=>{
+      satirlar.push([
+        s.barkod||'',
+        (s.firma||'').replace(/,/g,' '),
+        (s.model||'').replace(/,/g,' '),
+        s.miktar||0,
+        'Adet',
+        paraToUSD(Number(s.alis),s.para).toFixed(2),
+        (s.kategori||'').replace(/,/g,' ')
+      ].join(','));
+    });
+    const icerik = '\uFEFF' + satirlar.join('\n');
+    const blob = new Blob([icerik], {type:'text/csv;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stok-listesi.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('CSV indirildi — '+db.stok.length+' ürün');
+  } catch(e) {
+    toast('İndirme hatası: '+e.message,'er');
+  }
 }
 
 function barkodOku() { toast('Barkod tarayıcı mobil cihazda çalışır.','er'); }
@@ -1964,9 +2012,9 @@ function paraUstu(){
                  + paraToUSD(n('pRUB'),'RUB');
   const kartUSD  = paraToUSD(n('pKTL'),'TL')
                  + n('pKUSD')
-                 + paraToUSD(n('pKEUR'),'EUR')
-                 + paraToUSD(n('pKRUB'),'RUB');
-  const toplamOdemeUSD = nakitUSD + kartUSD;
+                 + paraToUSD(n('pKEUR'),'EUR');
+  const anzerUSD = paraToUSD(n('pANZER'),'RUB');
+  const toplamOdemeUSD = nakitUSD + kartUSD + anzerUSD;
 
   const el = document.getElementById('changeInfo');
   if(toplamOdemeUSD > 0){
@@ -1982,7 +2030,7 @@ function paraUstu(){
 }
 
 function odemeSifirla(){
-  ['pTL','pUSD','pEUR','pTNG','pRUB','pKTL','pKUSD','pKEUR','pKRUB'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['pTL','pUSD','pEUR','pTNG','pRUB','pKTL','pKUSD','pKEUR','pANZER'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('changeInfo').style.display='none';
 }
 
@@ -1990,11 +2038,12 @@ async function satisTamamla(){
   if(!sepet.length){toast('Sepet boş','er');return;}
   const top=sepet.reduce((s,k)=>s+k.toplam,0);
   const topUSD=sepet.reduce((s,k)=>s+paraToUSD((k.fiyatOrijinal||k.fiyat)*k.mq, k.fiyatPara||'TL'),0);
-  // Kredi kartı RUB → o günün kuruyla USD'ye çevir
-  const kartRubUSD = paraToUSD(n('pKRUB'), 'RUB');
+  // Anzer Vezne: RUB tutar olarak kaydet
+  const anzerRub = n('pANZER');
   const odeme={
     nakit:{tl:n('pTL'),usd:n('pUSD'),eur:n('pEUR'),tng:n('pTNG'),rub:n('pRUB')},
-    kart:{tl:n('pKTL'),usd:n('pKUSD')+kartRubUSD,eur:n('pKEUR'),rub:0}  // RUB → USD'ye çevrildi
+    kart:{tl:n('pKTL'),usd:n('pKUSD'),eur:n('pKEUR'),rub:0},
+    anzer:{rub:anzerRub}  // Anzer Vezne RUB tutarı
   };
   const now=new Date();
   // Tarih: formdan alınan tarih varsa onu kullan, yoksa bugün
@@ -2210,7 +2259,7 @@ function grupEkle(){
 }
 
 function giderGrupSelectGuncelle() {
-  const sabitler = ['Eleman Giderleri','Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'];
+  const sabitler = ['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'];
   const ozelGruplar = (db.gruplar||[]).filter(g=>!sabitler.includes(g));
   const personelGruplar = (db.personeller||[]).filter(p=>p.aktif!==false).map(p=>p.ad);
   const tumGruplar = [...sabitler, ...ozelGruplar, ...personelGruplar];
@@ -2290,7 +2339,7 @@ function muhRender(){
     }
     if(s.odeme?.kart){
       dovKart.TL+=s.odeme.kart.tl||0;
-      dovKart.USD+=(s.odeme.kart.usd||0)+paraToUSD(s.odeme.kart.rub||0,'RUB',s.tarih);
+      dovKart.USD+=s.odeme.kart.usd||0;
       dovKart.EUR+=s.odeme.kart.eur||0;
     }
   });
@@ -2327,7 +2376,7 @@ let aktifRaporTab = 'satis';
 function raporTab(tab, el) {
   aktifRaporTab = tab;
   // Tüm panelleri gizle
-  ['satis','firma','personel','gider'].forEach(t=>{
+  ['satis','firma','personel','gider','kasa'].forEach(t=>{
     const p=document.getElementById('rPanel-'+t);
     if(p) p.style.display='none';
     const b=document.getElementById('rTab-'+t);
@@ -2342,7 +2391,10 @@ function raporTab(tab, el) {
 }
 
 function raporOlustur(){
-  const bas=new Date(v('rBas')); const bit=new Date(v('rBit')); bit.setHours(23,59,59);
+  // Tarih parse: timezone sorunu önlemek için T00:00:00 ekle
+  const basStr=v('rBas'), bitStr=v('rBit');
+  if(!basStr||!bitStr){return;}
+  const bas=new Date(basStr+'T00:00:00'); const bit=new Date(bitStr+'T23:59:59');
   if(isNaN(bas)||isNaN(bit)){return;}
 
   // Tarih aralığındaki satışlar (DD.MM.YYYY)
@@ -2471,6 +2523,56 @@ function raporOlustur(){
     sv('rPBas',v('rBas')); sv('rPBit',v('rBit'));
     personelRaporSelectGuncelle();
     personelRaporOlustur();
+  }
+
+  // ── KASA RAPORU paneli (Anzer Kasası) ──
+  if(aktifRaporTab==='kasa'){
+    // Tarih aralığındaki Anzer Vezne işlemleri
+    const anzerFilt = db.satislar.filter(s=>{
+      if(!s.odeme?.anzer?.rub || s.odeme.anzer.rub<=0) return false;
+      const p=s.tarih.split('.'); if(p.length<3)return false;
+      const d=new Date(p[2],p[1]-1,p[0]); return d>=bas&&d<=bit;
+    });
+
+    const anzerIslemler = anzerFilt.map(s=>{
+      const rubTutar = s.odeme.anzer.rub;
+      const kur = getKur('RUB', s.tarih);
+      const usdTutar = rubTutar / kur;
+      return {tarih:s.tarih, saat:s.saat||'—', rubTutar, usdTutar, kur};
+    });
+
+    const topRUB = anzerIslemler.reduce((s,x)=>s+x.rubTutar,0);
+    const topUSD = anzerIslemler.reduce((s,x)=>s+x.usdTutar,0);
+
+    document.getElementById('rAnzerStats').innerHTML=`
+      <div class="sc" style="border-color:var(--rub)">
+        <div class="sc-label">Toplam RUB</div>
+        <div class="sc-val mono" style="color:var(--rub)">₽${topRUB.toFixed(2)}</div>
+        <div class="sc-sub">${anzerIslemler.length} işlem</div>
+      </div>
+      <div class="sc" style="border-color:var(--usd)">
+        <div class="sc-label">USD Karşılığı</div>
+        <div class="sc-val mono" style="color:var(--usd)">$${topUSD.toFixed(2)}</div>
+      </div>
+      <div class="sc">
+        <div class="sc-label">Ort. Kur</div>
+        <div class="sc-val mono">${anzerIslemler.length?( topRUB/topUSD).toFixed(2):'—'}</div>
+        <div class="sc-sub">1$ = ₽</div>
+      </div>`;
+
+    const rb = document.getElementById('rAnzerBody');
+    if(!anzerIslemler.length){
+      rb.innerHTML='<tr><td colspan="5" class="empty">Bu tarihte RUB kartlı satış yok</td></tr>';
+    } else {
+      rb.innerHTML=[...anzerIslemler].sort((a,b)=>b.tarih.localeCompare(a.tarih)).map(x=>`
+        <tr>
+          <td>${x.tarih}</td>
+          <td class="mono">${x.saat}</td>
+          <td class="mono" style="color:var(--rub)">₽${x.rubTutar.toFixed(2)}</td>
+          <td class="mono" style="color:var(--usd)">$${x.usdTutar.toFixed(2)}</td>
+          <td class="mono t-muted">${x.kur.toFixed(2)}</td>
+        </tr>`).join('');
+    }
   }
 
   // ── GİDER DETAY paneli ──
@@ -2716,8 +2818,8 @@ function personelHesapRender() {
   const p = db.personeller.find(x=>String(x.id)===String(seciliPersonelId));
   if (!p) return;
 
-  const bas = new Date(v('pdBas'));
-  const bit = new Date(v('pdBit')); bit.setHours(23,59,59);
+  const bas = new Date((v('pdBas')||ymd(new Date()))+'T00:00:00');
+  const bit = new Date((v('pdBit')||ymd(new Date()))+'T23:59:59');
 
   // Tarih filtreli satışlar
   const filtSatislar = db.satislar.filter(s=>{
@@ -2805,8 +2907,8 @@ function personelRaporSelectGuncelle() {
 
 function personelRaporOlustur() {
   const personelId = v('rPersonelSec');
-  const bas = new Date(v('rPBas'));
-  const bit = new Date(v('rPBit')); bit.setHours(23,59,59);
+  const bas = new Date((v('rPBas')||ymd(new Date()))+'T00:00:00');
+  const bit = new Date((v('rPBit')||ymd(new Date()))+'T23:59:59');
 
   const filtSatislar = db.satislar.filter(s=>{
     const parts=s.tarih.split('.');
@@ -2870,8 +2972,12 @@ function personelRaporOlustur() {
 function kasaRender() {
   // Vezneler: satışlardan gelen tutarlar (transfer çıkarılmış)
   const vezneN = {TL:0,USD:0,EUR:0,TNG:0,RUB:0};
-  // Kredi kartı vezne: RUB yok, hepsi USD'ye çevrilmiş
+  // Kredi kartı vezne: RUB ayrı takip edilir ama USD karşılığı gösterilir
   const vezneK = {TL:0,USD:0,EUR:0};
+  let vezneKRubUSD = 0; // RUB ile yapılan kartlı ödemelerin USD karşılığı
+
+  let anzerTopRUB = 0;
+  let anzerTopUSD = 0;
 
   db.satislar.forEach(s=>{
     if(s.odeme?.nakit){
@@ -2883,15 +2989,21 @@ function kasaRender() {
     }
     if(s.odeme?.kart){
       vezneK.TL += s.odeme.kart.tl||0;
-      // RUB zaten USD'ye çevrilmiş olarak kaydedildi, doğrudan USD'ye ekle
-      vezneK.USD += (s.odeme.kart.usd||0) + paraToUSD(s.odeme.kart.rub||0,'RUB',s.tarih);
+      vezneK.USD += s.odeme.kart.usd||0;
       vezneK.EUR += s.odeme.kart.eur||0;
+    }
+    // Anzer Vezne: s.odeme.anzer.rub
+    if(s.odeme?.anzer?.rub && s.odeme.anzer.rub > 0) {
+      const rubTutar = s.odeme.anzer.rub;
+      const usdKarsilik = paraToUSD(rubTutar, 'RUB', s.tarih);
+      anzerTopRUB += rubTutar;
+      anzerTopUSD += usdKarsilik;
     }
   });
 
   // Transferleri vezneden düş (nakit vezneden önce düş, yetmiyorsa kart)
   (db.transferler||[]).forEach(t=>{
-    const para = t.para;
+    const para = t.para; // RUB transferler zaten USD olarak kaydedilmiş
     const tutar = Number(t.tutar);
     if(vezneN[para] !== undefined) {
       if(vezneN[para] >= tutar) {
@@ -2931,12 +3043,53 @@ function kasaRender() {
       <div class="sc-val mono" style="font-size:16px;color:${renk[c]||'var(--txt)'}">${sembol[c]||c}${Math.max(0,v).toFixed(2)}</div>
     </div>`).join('');
 
-  // Vezne kart render
-  document.getElementById('vezneKartStats').innerHTML = Object.entries(vezneK).map(([c,v])=>`
+  // Vezne kart render: TL, USD, EUR normal + RUB sütunu USD karşılığıyla
+  const vezneKEntries = Object.entries(vezneK);
+  let vezneKHtml = vezneKEntries.map(([c,v])=>`
     <div class="sc">
       <div class="sc-label">KART ${c}</div>
       <div class="sc-val mono" style="font-size:16px;color:${renk[c]||'var(--txt)'}">${sembol[c]||c}${Math.max(0,v).toFixed(2)}</div>
     </div>`).join('');
+  // RUB ile yapılan kartlı ödemeler — başlık RUB ama değer USD
+  if(vezneKRubUSD > 0) {
+    vezneKHtml += `
+    <div class="sc" style="border-color:var(--rub)">
+      <div class="sc-label">KART RUB <span style="font-size:9px;color:var(--txt3);">(USD karşılığı)</span></div>
+      <div class="sc-val mono" style="font-size:16px;color:var(--usd)">$${vezneKRubUSD.toFixed(2)}</div>
+      <div style="font-size:10px;color:var(--txt3);margin-top:3px;">≈ ₽${(vezneKRubUSD*(getKur('RUB')||1)).toFixed(0)}</div>
+    </div>`;
+  }
+  document.getElementById('vezneKartStats').innerHTML = vezneKHtml;
+
+  // ── Anzer Kasası stats render ──
+  // Transfer edilen USD ve RUB karşılıkları
+  const anzerTransferUSD = (db.transferler||[]).reduce((s,t)=>s+Number(t.tutar),0);
+  const anzerTransferRUB = (db.transferler||[]).reduce((s,t)=>s+(t.rubTutar||0),0);
+  const anzerKalanUSD = Math.max(0, anzerTopUSD - anzerTransferUSD);
+  const anzerKalanRUB = Math.max(0, anzerTopRUB - anzerTransferRUB);
+  const ortKur = anzerTopUSD>0 ? (anzerTopRUB/anzerTopUSD).toFixed(2) : '—';
+
+  document.getElementById('anzerKasaStats').innerHTML = `
+    <div class="sc" style="border-color:var(--rub)">
+      <div class="sc-label">Toplam ₽ RUB</div>
+      <div class="sc-val mono" style="color:var(--rub)">₽${anzerTopRUB.toFixed(2)}</div>
+      <div class="sc-sub">Tüm Anzer satışlar</div>
+    </div>
+    <div class="sc" style="border-color:var(--usd)">
+      <div class="sc-label">Toplam $ USD</div>
+      <div class="sc-val mono" style="color:var(--usd)">$${anzerTopUSD.toFixed(2)}</div>
+      <div class="sc-sub">Ort. kur: 1$=₽${ortKur}</div>
+    </div>
+    <div class="sc" style="border-color:var(--sky)">
+      <div class="sc-label">Transfer Edilen</div>
+      <div class="sc-val mono" style="color:var(--sky)">$${anzerTransferUSD.toFixed(2)}</div>
+      <div class="sc-sub">₽${anzerTransferRUB.toFixed(0)} RUB karşılığı</div>
+    </div>
+    <div class="sc" style="border-color:var(--mint)">
+      <div class="sc-label">Kalan $ USD</div>
+      <div class="sc-val mono" style="color:var(--mint)">$${anzerKalanUSD.toFixed(2)}</div>
+      <div class="sc-sub">₽${anzerKalanRUB.toFixed(0)} RUB karşılığı</div>
+    </div>`;
 
   // Transfer listesi
   const tbody = document.getElementById('transferBody');
@@ -2945,10 +3098,14 @@ function kasaRender() {
   }
   tbody.innerHTML = [...db.transferler].reverse().map((t,ri)=>{
     const idx = db.transferler.length-1-ri;
+    const rubTutar = t.rubTutar || 0;
+    const usdTutar = Number(t.tutar);
+    const kur = t.kur || (rubTutar>0 ? (rubTutar/usdTutar).toFixed(2) : '—');
     return `<tr>
       <td>${t.tarih}</td>
-      <td><span class="badge b-${(t.para||'tl').toLowerCase()}">${t.para}</span></td>
-      <td class="mono t-mint">${sembol[t.para]||''}${Number(t.tutar).toFixed(2)}</td>
+      <td class="mono" style="color:var(--rub)">${rubTutar>0?'₽'+rubTutar.toFixed(2):'—'}</td>
+      <td class="mono t-mint">$${usdTutar.toFixed(2)}</td>
+      <td class="mono t-muted">${rubTutar>0?kur:'—'}</td>
       <td class="t-muted">${t.aciklama||'—'}</td>
       <td><div class="row">
         <button class="btn btn-ghost btn-xs" onclick="transferDuzenle(${idx})">✏</button>
@@ -2958,41 +3115,68 @@ function kasaRender() {
   }).join('');
 }
 
-function trRubBilgi() {
-  const para = document.getElementById('trPara').value;
-  const info = document.getElementById('trRubInfo');
-  if(info) info.style.display = para==='RUB' ? 'block' : 'none';
+function trRubHesapla() {
+  const usdTutar = parseFloat(document.getElementById('trTutar').value)||0;
+  const el = document.getElementById('trRubGoster');
+  const rubEl = document.getElementById('trRubVal');
+  const kurEl = document.getElementById('trRubKurVal');
+  if(usdTutar > 0) {
+    // Ortalama kur: Anzer kasasındaki toplam RUB / toplam USD
+    let ortKur = 0;
+    let topRUB = 0, topUSD = 0;
+    db.satislar.forEach(s=>{
+      if(s.odeme?.anzer?.rub && s.odeme.anzer.rub > 0) {
+        const rub = s.odeme.anzer.rub;
+        const usd = paraToUSD(rub, 'RUB', s.tarih);
+        topRUB += rub;
+        topUSD += usd;
+      }
+    });
+    ortKur = topUSD > 0 ? topRUB / topUSD : getKur('RUB');
+    const rubKarsilik = usdTutar * ortKur;
+    el.style.display = 'block';
+    rubEl.textContent = '₽' + rubKarsilik.toFixed(2);
+    kurEl.textContent = 'Ort. kur: 1$ = ₽' + ortKur.toFixed(2);
+  } else {
+    el.style.display = 'none';
+  }
 }
 
 function transferKaydet() {
-  const tarih=v('trTarih'), para=v('trPara'), tutarRaw=n('trTutar');
-  if(!tarih||!tutarRaw){toast('Tarih ve tutar zorunlu','er');return;}
-  // RUB seçilmişse USD'ye çevir, para birimini USD olarak kaydet
-  let tutar = tutarRaw;
-  let kayitPara = para;
-  if(para === 'RUB') {
-    tutar = paraToUSD(tutarRaw, 'RUB', tarih);
-    kayitPara = 'USD';
-    toast('₽'+tutarRaw.toFixed(2)+' RUB → $'+tutar.toFixed(2)+' USD olarak kaydedildi');
-  }
+  const tarih=v('trTarih'), usdTutar=n('trTutar');
+  if(!tarih||!usdTutar){toast('Tarih ve USD tutar zorunlu','er');return;}
+  // Ortalama kur hesapla
+  let topRUB=0, topUSD=0;
+  db.satislar.forEach(s=>{
+    if(s.odeme?.anzer?.rub && s.odeme.anzer.rub>0){
+      topRUB += s.odeme.anzer.rub;
+      topUSD += paraToUSD(s.odeme.anzer.rub,'RUB',s.tarih);
+    }
+  });
+  const ortKur = topUSD>0 ? topRUB/topUSD : getKur('RUB',tarih);
+  const rubKarsilik = usdTutar * ortKur;
   const editId=v('trEditId');
+  const item = {id:Date.now(),tarih,para:'USD',tutar:usdTutar,rubTutar:rubKarsilik,kur:ortKur,aciklama:v('trAciklama')};
   if(editId){
     const idx=db.transferler.findIndex(t=>String(t.id)===String(editId));
-    if(idx>=0) db.transferler[idx]={...db.transferler[idx],tarih,para:kayitPara,tutar,aciklama:v('trAciklama')};
+    if(idx>=0) db.transferler[idx]={...db.transferler[idx],...item,id:db.transferler[idx].id};
     sv('trEditId','');
   } else {
     if(!db.transferler) db.transferler=[];
-    db.transferler.push({id:Date.now(),tarih,para:kayitPara,tutar,aciklama:v('trAciklama')});
+    db.transferler.push(item);
   }
   kaydet(); kasaRender(); closeMo('moTransfer');
-  sv('trTarih',''); sv('trTutar',''); sv('trAciklama','');
-  toast('Transfer kaydedildi');
+  sv('trTarih',''); sv('trTutar','');sv('trAciklama','');
+  const el=document.getElementById('trRubGoster');
+  if(el) el.style.display='none';
+  toast('Transfer: $'+usdTutar.toFixed(2)+' Ana Kasaya | ₽'+rubKarsilik.toFixed(2)+' Anzer kasasından düşüldü');
 }
 
 function transferDuzenle(idx) {
   const t=db.transferler[idx];
-  sv('trEditId',t.id); sv('trTarih',t.tarih); sv('trPara',t.para);
-  sv('trTutar',t.tutar); sv('trAciklama',t.aciklama||'');
+  sv('trEditId',t.id); sv('trTarih',t.tarih);
+  sv('trTutar',t.tutar||''); sv('trAciklama',t.aciklama||'');
+  trRubHesapla();
   openMo('moTransfer');
 }
 
@@ -3085,7 +3269,7 @@ function giderGuncelle() {
 function grupBtnRender() {
   const div = document.getElementById('grupBtnlarDiv');
   if(!div) return;
-  const sabitler = [{isim:'Tümü',ikon:''},{isim:'Eleman Giderleri',ikon:'👷'},{isim:'Yemek Giderleri',ikon:'🍽'},{isim:'Kira',ikon:'🏠'},{isim:'Faturalar',ikon:'⚡'},{isim:'Nakliye',ikon:'🚚'}];
+  const sabitler = [{isim:'Tümü',ikon:''},{isim:'Yemek Giderleri',ikon:'🍽'},{isim:'Kira',ikon:'🏠'},{isim:'Faturalar',ikon:'⚡'},{isim:'Nakliye',ikon:'🚚'}];
   // Personelleri de grup olarak ekle
   const personelGruplar = (db.personeller||[]).filter(p=>p.aktif!==false).map(p=>({isim:p.ad,ikon:'👤',sabit:false,personel:true}));
   const hepsi = [{isim:'Tümü',ikon:'',sabit:true},...sabitler.slice(1).map(s=>({...s,sabit:true})),...(db.gruplar||[]).filter(g=>!sabitler.map(s=>s.isim).includes(g)).map(g=>({isim:g,ikon:'',sabit:false})),...personelGruplar];
@@ -3130,27 +3314,39 @@ function barChart(containerId,data,color){
 
 // ─── EXCEL İNDİR ─────────────────────────
 function excelIndir() {
-  // İçe aktarımla birebir uyumlu CSV (Excel ile açılır)
-  // Format: Barkod,Firma,Model,Miktar,Birim,Alış,Kategori
-  const now = new Date();
-  const tarihStr = now.toLocaleDateString('tr-TR').replace(/\./g,'-');
-  const h = 'Barkod,Firma,Model,Miktar,Birim,Alis,Kategori\n';
-  const rows = db.stok.map(s => [
-    s.barkod||'',
-    (s.firma||'').replace(/,/g,' '),
-    (s.model||'').replace(/,/g,' '),
-    s.miktar||0,
-    'Adet',
-    paraToUSD(Number(s.alis), s.para).toFixed(2),
-    (s.kategori||'').replace(/,/g,' ')
-  ].join(',')).join('\n');
-  const bom = '\uFEFF';
-  const blob = new Blob([bom+h+rows], {type:'text/csv;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'stok-listesi-' + tarihStr + '.csv';
-  a.click();
-  toast('Stok listesi indirildi (Excel ile açabilirsiniz)');
+  if(!db.stok||!db.stok.length){toast('Stok listesi boş','er');return;}
+  try {
+    const now = new Date();
+    const tarih = now.toLocaleDateString('tr-TR').replace(/\./g,'-');
+    // HTML tablo formatı — Excel doğrudan açar, Türkçe karakter sorunu olmaz
+    let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel">';
+    html += '<head><meta charset="UTF-8"></head><body><table>';
+    html += '<tr><th>Barkod</th><th>Firma</th><th>Model</th><th>Miktar</th><th>Birim</th><th>Alis USD</th><th>Kategori</th></tr>';
+    db.stok.forEach(s=>{
+      html += '<tr>';
+      html += '<td>'+( s.barkod||'')+'</td>';
+      html += '<td>'+(s.firma||'')+'</td>';
+      html += '<td>'+(s.model||'')+'</td>';
+      html += '<td>'+(s.miktar||0)+'</td>';
+      html += '<td>Adet</td>';
+      html += '<td>'+paraToUSD(Number(s.alis),s.para).toFixed(2)+'</td>';
+      html += '<td>'+(s.kategori||'')+'</td>';
+      html += '</tr>';
+    });
+    html += '</table></body></html>';
+    const blob = new Blob([html], {type:'application/vnd.ms-excel;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'stok-listesi-'+tarih+'.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Excel indirildi — '+db.stok.length+' ürün');
+  } catch(e) {
+    toast('İndirme hatası: '+e.message,'er');
+  }
 }
 
 // ─── BARKOD OTOMATİK SEÇİM (SATIŞ) ─────
