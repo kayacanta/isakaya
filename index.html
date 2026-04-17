@@ -1464,92 +1464,103 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
 // ─── FİREBASE ─────────────────────────────
 let fbDb = null; // Firestore instance
 
+// ── Firebase dinleyicileri (unsubscribe için) ──
+let fbListeners = [];
+
 async function fbInit() {
-  if(!db.fbConfig || fbDb) return;
+  if(!db.fbConfig) return false;
+  if(fbDb) return true;
   try {
-    // Firebase SDK yükle
     if(!window.firebase) {
-      await new Promise((res,rej)=>{
-        const s1 = document.createElement('script');
-        s1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
-        s1.onload = res; s1.onerror = rej;
-        document.head.appendChild(s1);
-      });
-      await new Promise((res,rej)=>{
-        const s2 = document.createElement('script');
-        s2.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
-        s2.onload = res; s2.onerror = rej;
-        document.head.appendChild(s2);
-      });
+      await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+      await new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js'; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
     }
     if(!firebase.apps.length) firebase.initializeApp(db.fbConfig);
     fbDb = firebase.firestore();
+    // Offline persistence (çevrimdışı destek)
+    try { fbDb.enablePersistence(); } catch(e){}
     console.log('Firebase baglandi');
     return true;
-  } catch(e) {
-    console.error('Firebase init hatasi:', e);
-    return false;
-  }
+  } catch(e) { console.error('Firebase init hatasi:', e); return false; }
 }
 
-async function fbSaveDoc(collection, docId, data) {
+// Firestore'a yaz
+async function fbYaz(col, docId, data) {
   if(!fbDb) await fbInit();
   if(!fbDb) return;
-  try { await fbDb.collection(collection).doc(String(docId)).set(data); } catch(e) { console.error('fbSave:', e); }
+  try { await fbDb.collection(col).doc(String(docId)).set(data); }
+  catch(e) { console.error('fbYaz:', e); }
 }
 
-async function fbDeleteDoc(collection, docId) {
+// Firestore'dan sil
+async function fbSil(col, docId) {
   if(!fbDb) await fbInit();
   if(!fbDb) return;
-  try { await fbDb.collection(collection).doc(String(docId)).delete(); } catch(e) { console.error('fbDelete:', e); }
+  try { await fbDb.collection(col).doc(String(docId)).delete(); }
+  catch(e) { console.error('fbSil:', e); }
 }
 
-async function fbGetAll(collection) {
-  if(!fbDb) await fbInit();
-  if(!fbDb) return [];
-  try {
-    const snap = await fbDb.collection(collection).get();
-    return snap.docs.map(d=>({id:d.id,...d.data()}));
-  } catch(e) { console.error('fbGet:', e); return []; }
+// Gerçek zamanlı dinleyicileri başlat (onSnapshot)
+function fbDinlemeBaslat() {
+  if(!fbDb) return;
+  // Eski dinleyicileri kapat
+  fbListeners.forEach(u=>u());
+  fbListeners = [];
+  const dot = document.getElementById('dot');
+  const txt = document.getElementById('syncTxt');
+
+  const kollar = [
+    {col:'stok',     hedef:'stok'},
+    {col:'satislar', hedef:'satislar'},
+    {col:'giderler', hedef:'giderler'},
+    {col:'personeller', hedef:'personeller'},
+    {col:'transferler', hedef:'transferler'},
+  ];
+
+  let yuklendi = 0;
+  kollar.forEach(({col, hedef})=>{
+    const unsub = fbDb.collection(col).onSnapshot(snap=>{
+      db[hedef] = snap.docs.map(d=>{ const dd=d.data(); if(!dd.id) dd.id=d.id; return dd; });
+      kaydet();
+      // Tüm koleksiyonlar ilk kez yüklendiyse renderAll
+      yuklendi++;
+      if(yuklendi >= kollar.length) {
+        renderAll();
+        if(dot) dot.className='sync-dot ok';
+        if(txt) txt.textContent='Bağlı';
+      } else {
+        renderAll();
+      }
+    }, err=>{
+      console.error('fbDinle hata:', col, err);
+      if(dot) dot.className='sync-dot err';
+    });
+    fbListeners.push(unsub);
+  });
 }
 
+// İlk veri yükleme + dinleme başlat
 async function fbSyncTumunu() {
   if(!fbDb) { const ok = await fbInit(); if(!ok) return; }
-  try {
-    const dot = document.getElementById('dot');
-    dot.className = 'sync-dot loading';
-    const [stok, satislar, giderler] = await Promise.all([
-      fbGetAll('stok'), fbGetAll('satislar'), fbGetAll('giderler')
-    ]);
-    if(stok.length > 0) db.stok = stok;
-    if(satislar.length > 0) db.satislar = satislar;
-    if(giderler.length > 0) db.giderler = giderler;
-    kaydet(); renderAll();
-    dot.className = 'sync-dot ok';
-    toast('Firebase veriler yuklendi');
-  } catch(e) {
-    document.getElementById('dot').className = 'sync-dot err';
-    toast('Firebase sync hatasi','er');
-  }
+  const dot = document.getElementById('dot');
+  const txt = document.getElementById('syncTxt');
+  if(dot) dot.className='sync-dot loading';
+  if(txt) txt.textContent='Yükleniyor...';
+  fbDinlemeBaslat();
+  toast('Firebase gerçek zamanlı bağlantı kuruldu');
 }
 
-async function fbStokEkle(item) {
-  if(!db.fbConfig) return;
-  if(!fbDb) await fbInit();
-  await fbSaveDoc('stok', item.id, item);
-}
-
-async function fbSatisSave(satis) {
-  if(!db.fbConfig) return;
-  if(!fbDb) await fbInit();
-  await fbSaveDoc('satislar', satis.id, satis);
-}
-
-async function fbGiderSave(gider) {
-  if(!db.fbConfig) return;
-  if(!fbDb) await fbInit();
-  await fbSaveDoc('giderler', gider.id, gider);
-}
+// Kısayol yazma fonksiyonları
+async function fbStokEkle(item)   { if(db.fbConfig){ if(!fbDb) await fbInit(); await fbYaz('stok', item.id, item); }}
+async function fbSatisSave(satis) { if(db.fbConfig){ if(!fbDb) await fbInit(); await fbYaz('satislar', satis.id, satis); }}
+async function fbGiderSave(gider) { if(db.fbConfig){ if(!fbDb) await fbInit(); await fbYaz('giderler', gider.id, gider); }}
+async function fbPersonelSave(p)  { if(db.fbConfig){ if(!fbDb) await fbInit(); await fbYaz('personeller', p.id, p); }}
+async function fbPersonelSilFb(id){ if(db.fbConfig){ if(!fbDb) await fbInit(); await fbSil('personeller', id); }}
+async function fbTransferSave(t)  { if(db.fbConfig){ if(!fbDb) await fbInit(); await fbYaz('transferler', t.id, t); }}
+async function fbTransferSilFb(id){ if(db.fbConfig){ if(!fbDb) await fbInit(); await fbSil('transferler', id); }}
+// Eski isim uyumluluğu
+async function fbSaveDoc(col, docId, data) { await fbYaz(col, docId, data); }
+async function fbDeleteDoc(col, docId)     { await fbSil(col, docId); }
 
 // ─── KULLANICI SİSTEMİ ───────────────────
 // Kullanıcılar db.kullanicilar'da saklanır (localStorage)
@@ -1948,12 +1959,7 @@ async function stokEkle() {
   else { db.stok.push(item); }
   kaydet(); stokRender(); satisSelRender(); stokFormSifirla();
   toast('Ürün eklendi');
-  if (db.gsURL) {
-    try {
-      if (mevcut>=0) await gsFetch('POST',{},{action:'stokGuncelle',data:db.stok[mevcut]});
-      else await gsFetch('POST',{},{action:'stokEkle',data:item});
-    } catch(e){}
-  }
+  await fbStokEkle(mevcut>=0 ? db.stok[mevcut] : item);
 }
 
 function stokRender() {
@@ -2000,7 +2006,7 @@ async function stokSil(idx) {
   const item = db.stok[idx];
   db.stok.splice(idx,1); kaydet(); stokRender(); satisSelRender();
   toast('Silindi');
-  if (db.gsURL) { try { await gsFetch('POST',{},{action:'stokSil',data:{id:item.id}}); } catch(e){} }
+  if(db.fbConfig) await fbSil('stok', item.id);
 }
 
 function stokDuzenle(idx) {
@@ -2022,7 +2028,7 @@ async function stokGuncelle() {
     urun:v('eFm')+' '+v('eMd'), kategori:v('eKt')
   };
   kaydet(); stokRender(); closeMo('moEdit'); toast('Güncellendi');
-  if (db.gsURL) { try { await gsFetch('POST',{},{action:'stokGuncelle',data:db.stok[idx]}); } catch(e){} }
+  await fbStokEkle(db.stok[idx]);
 }
 
 // ─── CSV ─────────────────────────────────
@@ -2094,7 +2100,7 @@ async function csvImport() {
   });
   kaydet(); stokRender(); satisSelRender(); closeMo('moExcel');
   toast(added+' eklendi, '+updated+' güncellendi');
-  if (db.gsURL) { try { await gsFetch('POST',{},{action:'stokTumunuYaz',data:db.stok}); } catch(e){} }
+  if(db.fbConfig) { if(!fbDb) await fbInit(); db.stok.forEach(s=>fbYaz('stok',s.id,s)); }
 }
 
 function csvIndir() {
@@ -2289,11 +2295,7 @@ async function satisTamamla(){
   }
   document.getElementById('successSub').textContent=`Toplam: $${topUSD.toFixed(2)} | ${satis.kalemler.length} kalem${primBilgi}`;
   document.getElementById('successOv').classList.add('on');
-  if(db.gsURL){
-    try{
-      await gsFetch('POST',{},{action:'satisEkle',data:satis});
-    }catch(e){}
-  }
+  await fbSatisSave(satis);
 }
 
 function yeniSatis(){
@@ -2409,6 +2411,7 @@ async function satisGuncelle() {
   };
   kaydet(); satisRender(); closeMo('moSatisDuzenle');
   toast('Satış güncellendi');
+  await fbSatisSave(db.satislar[idx]);
 }
 
 // ─── GİDER ───────────────────────────────
@@ -2428,7 +2431,7 @@ async function giderEkle(){
   db.giderler.unshift(item); kaydet(); giderRender(); kasaRender();
   sv('gaç',''); sv('gt',''); sv('gnot','');
   toast('Gider kaydedildi');
-  if(db.gsURL){try{await gsFetch('POST',{},{action:'giderEkle',data:item});}catch(e){}}
+  await fbGiderSave(item);
 }
 
 async function giderSil(idx){
@@ -2436,7 +2439,7 @@ async function giderSil(idx){
   const item=db.giderler[idx];
   db.giderler.splice(idx,1); kaydet(); giderRender();
   toast('Silindi');
-  if(db.gsURL){try{await gsFetch('POST',{},{action:'giderSil',data:{id:item.id}});}catch(e){}}
+  if(db.fbConfig) await fbSil('giderler', item.id);
 }
 
 function giderRender(){
@@ -2857,6 +2860,7 @@ function personelEkle() {
   closeMo('moPersonelEkle');
   ['pAd','pUnvan','pTel','pBasTarih','pPrimYuzde'].forEach(id=>sv(id,''));
   toast('Personel eklendi');
+  await fbPersonelSave(p);
 }
 
 function personelGuncelle() {
@@ -2875,6 +2879,7 @@ function personelGuncelle() {
   grupBtnRender(); giderGrupSelectGuncelle();
   closeMo('moPersonelDuzenle');
   toast('Personel güncellendi');
+  await fbPersonelSave(db.personeller[idx]);
 }
 
 function personelCikar(id) {
@@ -3381,6 +3386,7 @@ function transferKaydet() {
   const el=document.getElementById('trRubGoster');
   if(el) el.style.display='none';
   toast('Transfer: $'+usdTutar.toFixed(2)+' Ana Kasaya | ₽'+rubKarsilik.toFixed(2)+' Anzer kasasından düşüldü');
+  await fbTransferSave(item);
 }
 
 function transferDuzenle(idx) {
@@ -3393,8 +3399,10 @@ function transferDuzenle(idx) {
 
 function transferSil(idx) {
   if(!confirm('Transferi silmek istiyor musunuz?'))return;
+  const tId=db.transferler[idx]?.id;
   db.transferler.splice(idx,1); kaydet(); kasaRender();
   toast('Transfer silindi');
+  if(tId && db.fbConfig) await fbTransferSilFb(tId);
 }
 
 // ─── DÖVİZ KUR ────────────────────────────
@@ -3448,8 +3456,10 @@ function satisSil(idx) {
     const si=db.stok.findIndex(st=>st.barkod===k.barkod);
     if(si>=0) db.stok[si].miktar+=k.mq;
   });
+  const silId = s.id;
   db.satislar.splice(idx,1); kaydet(); satisRender(); stokRender(); kasaRender();
   toast('Satış silindi');
+  if(db.fbConfig) await fbSil('satislar', silId);
 }
 
 // ─── GİDER DÜZENLE ────────────────────────
@@ -3474,6 +3484,7 @@ function giderGuncelle() {
   };
   kaydet(); giderRender(); kasaRender(); closeMo('moGiderDuzenle');
   toast('Gider güncellendi');
+  if(db.fbConfig) await fbGiderSave(db.giderler[idx]);
 }
 
 // ─── GİDER GRUP RENDER ─────────────────────
