@@ -2839,7 +2839,7 @@ function raporOlustur(){
 // ─── PERSONEL ────────────────────────────
 let seciliPersonelId = null;
 
-function personelEkle() {
+async function personelEkle() {
   const ad = v('pAd');
   if (!ad) { toast('Ad Soyad zorunlu','er'); return; }
   const p = {
@@ -2863,7 +2863,7 @@ function personelEkle() {
   await fbPersonelSave(p);
 }
 
-function personelGuncelle() {
+async function personelGuncelle() {
   const id = v('epId');
   const idx = db.personeller.findIndex(p=>String(p.id)===String(id));
   if (idx<0) return;
@@ -2882,7 +2882,7 @@ function personelGuncelle() {
   await fbPersonelSave(db.personeller[idx]);
 }
 
-function personelCikar(id) {
+async function personelCikar(id) {
   const idx = db.personeller.findIndex(p=>String(p.id)===String(id));
   if (idx<0) return;
   const p = db.personeller[idx];
@@ -3358,7 +3358,7 @@ function trRubHesapla() {
   }
 }
 
-function transferKaydet() {
+async function transferKaydet() {
   const tarih=v('trTarih'), usdTutar=n('trTutar');
   if(!tarih||!usdTutar){toast('Tarih ve USD tutar zorunlu','er');return;}
   // Ortalama kur hesapla
@@ -3389,7 +3389,7 @@ function transferKaydet() {
   await fbTransferSave(item);
 }
 
-function transferDuzenle(idx) {
+async function transferDuzenle(idx) {
   const t=db.transferler[idx];
   sv('trEditId',t.id); sv('trTarih',t.tarih);
   sv('trTutar',t.tutar||''); sv('trAciklama',t.aciklama||'');
@@ -3397,7 +3397,7 @@ function transferDuzenle(idx) {
   openMo('moTransfer');
 }
 
-function transferSil(idx) {
+async function transferSil(idx) {
   if(!confirm('Transferi silmek istiyor musunuz?'))return;
   const tId=db.transferler[idx]?.id;
   db.transferler.splice(idx,1); kaydet(); kasaRender();
@@ -3430,7 +3430,7 @@ function dovizRender() {
     </tr>`).join('');
 }
 
-function kurKaydet() {
+async function kurKaydet() {
   const tarih=v('kurTarih');
   if(!tarih){toast('Tarih zorunlu','er');return;}
   if(!db.kurlar) db.kurlar=[];
@@ -3448,7 +3448,7 @@ function kurSil(idx) {
 }
 
 // ─── SATIŞ SİL ────────────────────────────
-function satisSil(idx) {
+async function satisSil(idx) {
   if(!confirm('Bu satışı silmek istiyor musunuz? Stok geri yüklenir.'))return;
   const s=db.satislar[idx];
   // Stok geri yükle
@@ -3471,7 +3471,7 @@ function giderDuzenleAc(idx) {
   openMo('moGiderDuzenle');
 }
 
-function giderGuncelle() {
+async function giderGuncelle() {
   const idx=parseInt(v('gdIdx'));
   const grup=v('gdGrup');
   const personelMatch = (db.personeller||[]).find(p=>p.ad===grup && p.aktif!==false);
