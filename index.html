@@ -1716,7 +1716,15 @@ function paraToUSD(tutar, para, tarih) {
   if (!oran) return tutar; // kur yoksa olduğu gibi bırak
   return tutar / oran;
 }
-let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'', fbConfig:null,
+let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'',
+  fbConfig:{
+    apiKey:"AIzaSyDE7WfuCipUM-MiH3TcgeXtMvWMhW9zjX8",
+    authDomain:"barkod-sayim.firebaseapp.com",
+    projectId:"barkod-sayim",
+    storageBucket:"barkod-sayim.firebasestorage.app",
+    messagingSenderId:"803776547742",
+    appId:"1:803776547742:web:489e2e9d13b3f63cc4e48f"
+  },
   kullanicilar:[
     {ad:'Sude',  sifre:'SK.0707', rol:'admin'},
     {ad:'Deniz', sifre:'DA.0707', rol:'admin'},
