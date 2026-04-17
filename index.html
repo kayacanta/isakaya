@@ -491,15 +491,25 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
 <!-- HEADER -->
 <header>
   <div class="logo">İsaKaya</div>
-  <div style="display:flex;gap:8px;align-items:center;">
+  <div style="display:flex;gap:6px;align-items:center;">
     <div class="user-badge" id="userBadge" onclick="cikisYap()" title="Çıkış yap">
       <span id="userBadgeName">—</span>
       <span class="user-role" id="userBadgeRole">—</span>
       <span style="font-size:10px;color:var(--txt3);">✕</span>
     </div>
-    <div class="sync-pill" onclick="openMo('moGS')">
+    <!-- Firebase butonu -->
+    <div class="sync-pill" id="fbPill" onclick="ayarAc('firebase')" title="Firebase Ayarları"
+      style="border-color:var(--sun);gap:5px;">
+      <div class="sync-dot" id="dotFb"></div>
+      <span style="font-size:13px;">🔥</span>
+      <span id="fbTxt" style="font-size:11px;">Firebase</span>
+    </div>
+    <!-- Google Sheets butonu -->
+    <div class="sync-pill" id="gsPill" onclick="ayarAc('sheets')" title="Google Sheets Ayarları"
+      style="border-color:var(--sky);gap:5px;">
       <div class="sync-dot" id="dot"></div>
-      <span id="syncTxt">Ayarlar</span>
+      <span style="font-size:13px;">📊</span>
+      <span id="syncTxt" style="font-size:11px;">Sheets</span>
     </div>
   </div>
 </header>
@@ -1788,7 +1798,6 @@ function openMo(id) {
   document.getElementById(id).classList.add('on');
   if(id==='moGS') {
     syncDurum();
-    // Mevcut bağlantıya göre aktif sekmeyi göster
     if(db.fbConfig) {
       ayarTab('firebase', document.getElementById('ayarTab-firebase'));
       const cfg = db.fbConfig;
@@ -1798,8 +1807,28 @@ function openMo(id) {
       if(cfg.appId) document.getElementById('fbAppId').value = cfg.appId;
     } else {
       ayarTab('sheets', document.getElementById('ayarTab-sheets'));
+      const gsEl = document.getElementById('gsURL');
+      if(gsEl && db.gsURL) gsEl.value = db.gsURL;
     }
   }
+}
+
+function ayarAc(sekme) {
+  openMo('moGS');
+  setTimeout(()=>{
+    ayarTab(sekme, document.getElementById('ayarTab-'+sekme));
+    if(sekme==='sheets' && db.gsURL) {
+      const el = document.getElementById('gsURL');
+      if(el) el.value = db.gsURL;
+    }
+    if(sekme==='firebase' && db.fbConfig) {
+      const cfg = db.fbConfig;
+      if(cfg.apiKey) document.getElementById('fbApiKey').value = cfg.apiKey;
+      if(cfg.projectId) document.getElementById('fbProjectId').value = cfg.projectId;
+      if(cfg.authDomain) document.getElementById('fbAuthDomain').value = cfg.authDomain;
+      if(cfg.appId) document.getElementById('fbAppId').value = cfg.appId;
+    }
+  }, 50);
 }
 function closeMo(id) { document.getElementById(id).classList.remove('on'); }
 
@@ -1868,25 +1897,28 @@ function fbBaglantiKes() {
 }
 
 function syncDurum() {
-  const dot = document.getElementById('dot');
-  const txt = document.getElementById('syncTxt');
-  const banner = document.getElementById('kurulumBanner');
-  const gsEl = document.getElementById('gsAktifBilgi');
-  const fbEl = document.getElementById('fbAktifBilgi');
+  const dot     = document.getElementById('dot');
+  const dotFb   = document.getElementById('dotFb');
+  const txt     = document.getElementById('syncTxt');
+  const fbTxt   = document.getElementById('fbTxt');
+  const banner  = document.getElementById('kurulumBanner');
+  const gsEl    = document.getElementById('gsAktifBilgi');
+  const fbEl    = document.getElementById('fbAktifBilgi');
+
   if(gsEl) gsEl.style.display = db.gsURL ? 'block' : 'none';
   if(fbEl) fbEl.style.display = db.fbConfig ? 'block' : 'none';
-  if (db.fbConfig) {
-    dot.className='sync-dot ok'; txt.textContent='Firebase Bağlı';
-    if(banner) banner.style.display='none';
-  } else if (db.gsURL) {
-    dot.className='sync-dot ok'; txt.textContent='Sheets Bağlı';
-    if(banner) banner.style.display='none';
-    const gsURLEl = document.getElementById('gsURL');
-    if(gsURLEl) gsURLEl.value = db.gsURL;
-  } else {
-    dot.className='sync-dot'; txt.textContent='Çevrimdışı';
-    if(banner) banner.style.display='flex';
-  }
+
+  // Firebase dot
+  if(dotFb) dotFb.className = db.fbConfig ? 'sync-dot ok' : 'sync-dot';
+  if(fbTxt) fbTxt.textContent = db.fbConfig ? 'Bağlı' : 'Firebase';
+
+  // Google Sheets dot
+  if(dot)  dot.className  = db.gsURL ? 'sync-dot ok' : 'sync-dot';
+  if(txt)  txt.textContent = db.gsURL ? 'Bağlı' : 'Sheets';
+
+  if(banner) banner.style.display = (db.fbConfig||db.gsURL) ? 'none' : 'flex';
+  const gsURLEl = document.getElementById('gsURL');
+  if(gsURLEl && db.gsURL) gsURLEl.value = db.gsURL;
 }
 
 async function gsSetup() {
