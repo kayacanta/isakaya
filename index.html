@@ -1078,30 +1078,76 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
 
 <!-- Google Sheets Kurulum -->
 <div class="mo" id="moGS">
-  <div class="mo-box">
-    <div class="mo-title">☁ Google Sheets Bağlantısı</div>
+  <div class="mo-box" style="max-width:520px;">
+    <div class="mo-title">⚙️ Bağlantı Ayarları</div>
 
-    <div style="background:var(--ink3);border-radius:var(--r2);padding:14px;margin-bottom:14px;">
-      <div style="font-size:11px;font-weight:700;color:var(--sun);margin-bottom:10px;">KURULUM ADIMLARI (5 dakika)</div>
-      <div class="steps">
-        <div class="step"><div class="step-n">1</div><div><strong style="color:var(--txt);">script.google.com</strong> adresine gidin → <code>Yeni proje</code> oluşturun</div></div>
-        <div class="step"><div class="step-n">2</div><div>Size verilen <strong style="color:var(--txt);">GOOGLE_APPS_SCRIPT.gs</strong> dosyasının içeriğini editöre yapıştırın</div></div>
-        <div class="step"><div class="step-n">3</div><div><code>Yayımla → Web uygulaması olarak dağıt</code> → Erişim: <code>Herkes</code> seçin</div></div>
-        <div class="step"><div class="step-n">4</div><div>Oluşturulan <strong style="color:var(--sky);">Web Uygulaması URL</strong>'sini aşağıya yapıştırın</div></div>
-        <div class="step"><div class="step-n">5</div><div><code>Bağlan & Kur</code> butonuna basın — Google Sheets otomatik oluşturulur ✓</div></div>
+    <!-- Sekme seçici -->
+    <div style="display:flex;gap:6px;margin-bottom:16px;">
+      <button class="btn btn-sky btn-sm" id="ayarTab-sheets" onclick="ayarTab('sheets',this)" style="flex:1;">
+        📊 Google Sheets
+      </button>
+      <button class="btn btn-ghost btn-sm" id="ayarTab-firebase" onclick="ayarTab('firebase',this)" style="flex:1;">
+        🔥 Firebase
+      </button>
+    </div>
+
+    <!-- Google Sheets paneli -->
+    <div id="ayarPanel-sheets">
+      <div style="background:var(--ink3);border-radius:var(--r2);padding:12px;margin-bottom:12px;font-size:11px;color:var(--txt2);line-height:1.7;">
+        <strong style="color:var(--sky);">Nasıl kurulur?</strong><br>
+        1. <strong>script.google.com</strong> → Yeni proje → Kodu yapıştır<br>
+        2. Dağıt → Web uygulaması → Erişim: <strong>Herkes</strong><br>
+        3. URL'yi aşağıya yapıştır → Bağlan
+      </div>
+      <div class="fg" style="margin-bottom:12px;">
+        <label>Apps Script URL</label>
+        <input id="gsURL" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <div id="gsAktifBilgi" style="display:none;background:rgba(62,207,142,.08);border:1px solid var(--mint);border-radius:var(--r2);padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--mint);">
+        ✅ Google Sheets bağlı
+      </div>
+      <div class="row">
+        <button class="btn btn-sky" onclick="gsKaydet()">🔗 Bağlan & Kur</button>
+        <button class="btn btn-ghost btn-sm" onclick="gsBaglantiKes()" style="color:var(--ruby);">Bağlantıyı Kes</button>
+        <button class="btn btn-ghost" onclick="closeMo('moGS')">Kapat</button>
       </div>
     </div>
 
-    <div class="fg" style="margin-bottom:12px;">
-      <label>Web Uygulaması URL (Apps Script)</label>
-      <input id="gsURL" placeholder="https://script.google.com/macros/s/.../exec">
+    <!-- Firebase paneli -->
+    <div id="ayarPanel-firebase" style="display:none;">
+      <div style="background:var(--ink3);border-radius:var(--r2);padding:12px;margin-bottom:12px;font-size:11px;color:var(--txt2);line-height:1.7;">
+        <strong style="color:var(--sun);">Nasıl kurulur?</strong><br>
+        1. <strong>firebase.google.com</strong> → Yeni proje oluştur<br>
+        2. Firestore Database → Create → europe-west1<br>
+        3. Rules → <code>allow read, write: if true</code> → Publish<br>
+        4. Project Settings → Web uygulaması → firebaseConfig kopyala<br>
+        5. Aşağıdaki alanlara yapıştır → Bağlan
+      </div>
+      <div class="grid g2" style="margin-bottom:10px;">
+        <div class="fg"><label>API Key</label><input id="fbApiKey" placeholder="AIzaSy..."></div>
+        <div class="fg"><label>Project ID</label><input id="fbProjectId" placeholder="isakaya-xxxxx"></div>
+        <div class="fg"><label>Auth Domain</label><input id="fbAuthDomain" placeholder="isakaya.firebaseapp.com"></div>
+        <div class="fg"><label>App ID</label><input id="fbAppId" placeholder="1:123:web:abc"></div>
+      </div>
+      <div style="font-size:10px;color:var(--txt3);margin-bottom:10px;">
+        💡 firebaseConfig kodunuzu yapıştırabilirsiniz:
+      </div>
+      <div class="fg" style="margin-bottom:12px;">
+        <label>firebaseConfig (JSON olarak yapıştır)</label>
+        <textarea id="fbConfigJson" rows="4" placeholder='{"apiKey":"...","projectId":"..."}' style="background:var(--ink3);border:1px solid var(--line);border-radius:var(--r2);color:var(--txt);font-family:var(--ff-mono);font-size:11px;padding:8px;width:100%;resize:vertical;" oninput="fbConfigParse()"></textarea>
+      </div>
+      <div id="fbAktifBilgi" style="display:none;background:rgba(240,166,0,.08);border:1px solid var(--sun);border-radius:var(--r2);padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--sun);">
+        🔥 Firebase bağlı
+      </div>
+      <div class="row">
+        <button class="btn btn-sun" onclick="fbKaydet()">🔥 Firebase Bağlan</button>
+        <button class="btn btn-ghost btn-sm" onclick="fbBaglantiKes()" style="color:var(--ruby);">Bağlantıyı Kes</button>
+        <button class="btn btn-ghost" onclick="closeMo('moGS')">Kapat</button>
+      </div>
     </div>
-    <div class="row">
-      <button class="btn btn-sky" onclick="gsKaydet()">🔗 Bağlan & Kur</button>
-      <button class="btn btn-ghost" onclick="closeMo('moGS')">İptal</button>
-    </div>
+
     <hr>
-    <p style="font-size:11px;color:var(--txt3);">Bağlantı olmadan uygulama yalnızca bu tarayıcıda çalışır. Veriler başka cihazlara aktarılmaz.</p>
+    <p style="font-size:10px;color:var(--txt3);">Bağlantı olmadan veriler yalnızca bu tarayıcıda saklanır.</p>
   </div>
 </div>
 
@@ -1439,6 +1485,96 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
    JAVASCRIPT
 ══════════════════════════════ -->
 <script>
+// ─── FİREBASE ─────────────────────────────
+let fbDb = null; // Firestore instance
+
+async function fbInit() {
+  if(!db.fbConfig || fbDb) return;
+  try {
+    // Firebase SDK yükle
+    if(!window.firebase) {
+      await new Promise((res,rej)=>{
+        const s1 = document.createElement('script');
+        s1.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
+        s1.onload = res; s1.onerror = rej;
+        document.head.appendChild(s1);
+      });
+      await new Promise((res,rej)=>{
+        const s2 = document.createElement('script');
+        s2.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
+        s2.onload = res; s2.onerror = rej;
+        document.head.appendChild(s2);
+      });
+    }
+    if(!firebase.apps.length) firebase.initializeApp(db.fbConfig);
+    fbDb = firebase.firestore();
+    console.log('Firebase baglandi');
+    return true;
+  } catch(e) {
+    console.error('Firebase init hatasi:', e);
+    return false;
+  }
+}
+
+async function fbSaveDoc(collection, docId, data) {
+  if(!fbDb) await fbInit();
+  if(!fbDb) return;
+  try { await fbDb.collection(collection).doc(String(docId)).set(data); } catch(e) { console.error('fbSave:', e); }
+}
+
+async function fbDeleteDoc(collection, docId) {
+  if(!fbDb) await fbInit();
+  if(!fbDb) return;
+  try { await fbDb.collection(collection).doc(String(docId)).delete(); } catch(e) { console.error('fbDelete:', e); }
+}
+
+async function fbGetAll(collection) {
+  if(!fbDb) await fbInit();
+  if(!fbDb) return [];
+  try {
+    const snap = await fbDb.collection(collection).get();
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e) { console.error('fbGet:', e); return []; }
+}
+
+async function fbSyncTumunu() {
+  if(!fbDb) { const ok = await fbInit(); if(!ok) return; }
+  try {
+    const dot = document.getElementById('dot');
+    dot.className = 'sync-dot loading';
+    const [stok, satislar, giderler] = await Promise.all([
+      fbGetAll('stok'), fbGetAll('satislar'), fbGetAll('giderler')
+    ]);
+    if(stok.length > 0) db.stok = stok;
+    if(satislar.length > 0) db.satislar = satislar;
+    if(giderler.length > 0) db.giderler = giderler;
+    kaydet(); renderAll();
+    dot.className = 'sync-dot ok';
+    toast('Firebase veriler yuklendi');
+  } catch(e) {
+    document.getElementById('dot').className = 'sync-dot err';
+    toast('Firebase sync hatasi','er');
+  }
+}
+
+async function fbStokEkle(item) {
+  if(!db.fbConfig) return;
+  if(!fbDb) await fbInit();
+  await fbSaveDoc('stok', item.id, item);
+}
+
+async function fbSatisSave(satis) {
+  if(!db.fbConfig) return;
+  if(!fbDb) await fbInit();
+  await fbSaveDoc('satislar', satis.id, satis);
+}
+
+async function fbGiderSave(gider) {
+  if(!db.fbConfig) return;
+  if(!fbDb) await fbInit();
+  await fbSaveDoc('giderler', gider.id, gider);
+}
+
 // ─── KULLANICI SİSTEMİ ───────────────────
 // Kullanıcılar db.kullanicilar'da saklanır (localStorage)
 // KULLANICILAR sabiti geriye dönük uyumluluk için
@@ -1490,10 +1626,13 @@ function girisYap() {
     if(sec) sec.classList.add('on');
   }
 
-  // Google Sheets bağlıysa taze veri çek
-  if (db.gsURL) {
+  // Bagla kaynaktan taze veri cek
+  if (db.fbConfig) {
+    toast('Firebase veriler yukleniyor...','ok');
+    fbInit().then(()=>fbSyncTumunu()).catch(e=>toast('Firebase hatasi','er'));
+  } else if (db.gsURL) {
     toast('Veriler Google Sheets ten yukleniyor...','ok');
-    gsSyncTumunu().catch(e => toast('Sheets bağlantı hatası','er'));
+    gsSyncTumunu().catch(e => toast('Sheets baglanti hatasi','er'));
   }
 }
 
@@ -1567,7 +1706,7 @@ function paraToUSD(tutar, para, tarih) {
   if (!oran) return tutar; // kur yoksa olduğu gibi bırak
   return tutar / oran;
 }
-let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'',
+let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'', fbConfig:null,
   kullanicilar:[
     {ad:'Sude',  sifre:'SK.0707', rol:'admin'},
     {ad:'Deniz', sifre:'DA.0707', rol:'admin'},
@@ -1604,6 +1743,8 @@ window.addEventListener('DOMContentLoaded', () => {
   csvFileListener();
   renderAll();
   syncDurum();
+  // Firebase varsa init et
+  if(db.fbConfig) fbInit();
 });
 
 // ─── KAYIT ───────────────────────────────
@@ -1643,7 +1784,23 @@ function nav(id, el) {
 }
 
 // ─── MODAL ───────────────────────────────
-function openMo(id) { document.getElementById(id).classList.add('on'); }
+function openMo(id) {
+  document.getElementById(id).classList.add('on');
+  if(id==='moGS') {
+    syncDurum();
+    // Mevcut bağlantıya göre aktif sekmeyi göster
+    if(db.fbConfig) {
+      ayarTab('firebase', document.getElementById('ayarTab-firebase'));
+      const cfg = db.fbConfig;
+      if(cfg.apiKey) document.getElementById('fbApiKey').value = cfg.apiKey;
+      if(cfg.projectId) document.getElementById('fbProjectId').value = cfg.projectId;
+      if(cfg.authDomain) document.getElementById('fbAuthDomain').value = cfg.authDomain;
+      if(cfg.appId) document.getElementById('fbAppId').value = cfg.appId;
+    } else {
+      ayarTab('sheets', document.getElementById('ayarTab-sheets'));
+    }
+  }
+}
 function closeMo(id) { document.getElementById(id).classList.remove('on'); }
 
 // ─── TOAST ───────────────────────────────
@@ -1654,24 +1811,78 @@ function toast(msg, type='ok') {
 }
 
 // ─── GOOGLE SHEETS ────────────────────────
+function ayarTab(tab, el) {
+  ['sheets','firebase'].forEach(t=>{
+    document.getElementById('ayarPanel-'+t).style.display = t===tab ? 'block' : 'none';
+    const btn = document.getElementById('ayarTab-'+t);
+    if(btn) btn.className = t===tab ? 'btn btn-sky btn-sm' : 'btn btn-ghost btn-sm';
+    if(btn) btn.style.flex = '1';
+  });
+}
+
 function gsKaydet() {
   const url = document.getElementById('gsURL').value.trim();
   if (!url) { toast('URL boş olamaz','er'); return; }
   db.gsURL = url;
-  kaydet();
-  closeMo('moGS');
-  syncDurum();
-  gsSetup();
+  kaydet(); closeMo('moGS'); syncDurum(); gsSetup();
+}
+
+function gsBaglantiKes() {
+  if(!confirm('Google Sheets bağlantısını kesmek istiyor musunuz?')) return;
+  db.gsURL = '';
+  kaydet(); syncDurum();
+  toast('Google Sheets bağlantısı kesildi');
+}
+
+function fbConfigParse() {
+  const raw = document.getElementById('fbConfigJson').value.trim();
+  if(!raw) return;
+  try {
+    const cfg = JSON.parse(raw);
+    if(cfg.apiKey) document.getElementById('fbApiKey').value = cfg.apiKey||'';
+    if(cfg.projectId) document.getElementById('fbProjectId').value = cfg.projectId||'';
+    if(cfg.authDomain) document.getElementById('fbAuthDomain').value = cfg.authDomain||'';
+    if(cfg.appId) document.getElementById('fbAppId').value = cfg.appId||'';
+  } catch(e) {}
+}
+
+function fbKaydet() {
+  const apiKey    = document.getElementById('fbApiKey').value.trim();
+  const projectId = document.getElementById('fbProjectId').value.trim();
+  const authDomain= document.getElementById('fbAuthDomain').value.trim();
+  const appId     = document.getElementById('fbAppId').value.trim();
+  if(!apiKey||!projectId){toast('API Key ve Project ID zorunlu','er');return;}
+  db.fbConfig = {apiKey, projectId, authDomain, appId,
+    storageBucket: projectId+'.appspot.com',
+    messagingSenderId: ''};
+  kaydet(); syncDurum(); closeMo('moGS');
+  toast('Firebase ayarları kaydedildi — sayfa yenilenecek');
+  setTimeout(()=>location.reload(), 1500);
+}
+
+function fbBaglantiKes() {
+  if(!confirm('Firebase bağlantısını kesmek istiyor musunuz?')) return;
+  db.fbConfig = null;
+  kaydet(); syncDurum();
+  toast('Firebase bağlantısı kesildi');
 }
 
 function syncDurum() {
   const dot = document.getElementById('dot');
   const txt = document.getElementById('syncTxt');
   const banner = document.getElementById('kurulumBanner');
-  if (db.gsURL) {
+  const gsEl = document.getElementById('gsAktifBilgi');
+  const fbEl = document.getElementById('fbAktifBilgi');
+  if(gsEl) gsEl.style.display = db.gsURL ? 'block' : 'none';
+  if(fbEl) fbEl.style.display = db.fbConfig ? 'block' : 'none';
+  if (db.fbConfig) {
+    dot.className='sync-dot ok'; txt.textContent='Firebase Bağlı';
+    if(banner) banner.style.display='none';
+  } else if (db.gsURL) {
     dot.className='sync-dot ok'; txt.textContent='Sheets Bağlı';
     if(banner) banner.style.display='none';
-    document.getElementById('gsURL').value = db.gsURL;
+    const gsURLEl = document.getElementById('gsURL');
+    if(gsURLEl) gsURLEl.value = db.gsURL;
   } else {
     dot.className='sync-dot'; txt.textContent='Çevrimdışı';
     if(banner) banner.style.display='flex';
