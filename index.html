@@ -498,18 +498,13 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
       <span style="font-size:10px;color:var(--txt3);">✕</span>
     </div>
     <!-- Firebase butonu -->
-    <div class="sync-pill" id="fbPill" onclick="ayarAc('firebase')" title="Firebase Ayarları"
+    <div class="sync-pill" onclick="openMo('moGS')" title="Firebase Ayarları"
       style="border-color:var(--sun);gap:5px;">
-      <div class="sync-dot" id="dotFb"></div>
-      <span style="font-size:13px;">🔥</span>
-      <span id="fbTxt" style="font-size:11px;">Firebase</span>
-    </div>
-    <!-- Google Sheets butonu -->
-    <div class="sync-pill" id="gsPill" onclick="ayarAc('sheets')" title="Google Sheets Ayarları"
-      style="border-color:var(--sky);gap:5px;">
       <div class="sync-dot" id="dot"></div>
-      <span style="font-size:13px;">📊</span>
-      <span id="syncTxt" style="font-size:11px;">Sheets</span>
+      <div class="sync-dot" id="dotFb" style="display:none;"></div>
+      <span style="font-size:13px;">🔥</span>
+      <span id="syncTxt" style="font-size:11px;">Firebase</span>
+      <span id="fbTxt" style="display:none;"></span>
     </div>
   </div>
 </header>
@@ -1088,76 +1083,47 @@ hr{border:none;border-top:1px solid var(--line);margin:14px 0;}
 
 <!-- Google Sheets Kurulum -->
 <div class="mo" id="moGS">
-  <div class="mo-box" style="max-width:520px;">
-    <div class="mo-title">⚙️ Bağlantı Ayarları</div>
+  <div class="mo-box" style="max-width:500px;">
+    <div class="mo-title">🔥 Firebase Bağlantı Ayarları</div>
 
-    <!-- Sekme seçici -->
-    <div style="display:flex;gap:6px;margin-bottom:16px;">
-      <button class="btn btn-sky btn-sm" id="ayarTab-sheets" onclick="ayarTab('sheets',this)" style="flex:1;">
-        📊 Google Sheets
-      </button>
-      <button class="btn btn-ghost btn-sm" id="ayarTab-firebase" onclick="ayarTab('firebase',this)" style="flex:1;">
-        🔥 Firebase
-      </button>
+    <div id="fbAktifBilgi" style="display:none;background:rgba(62,207,142,.08);border:1px solid var(--mint);border-radius:var(--r2);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--mint);">
+      ✅ Firebase bağlı — Veriler bulutta saklanıyor
     </div>
 
-    <!-- Google Sheets paneli -->
-    <div id="ayarPanel-sheets">
-      <div style="background:var(--ink3);border-radius:var(--r2);padding:12px;margin-bottom:12px;font-size:11px;color:var(--txt2);line-height:1.7;">
-        <strong style="color:var(--sky);">Nasıl kurulur?</strong><br>
-        1. <strong>script.google.com</strong> → Yeni proje → Kodu yapıştır<br>
-        2. Dağıt → Web uygulaması → Erişim: <strong>Herkes</strong><br>
-        3. URL'yi aşağıya yapıştır → Bağlan
-      </div>
-      <div class="fg" style="margin-bottom:12px;">
-        <label>Apps Script URL</label>
-        <input id="gsURL" placeholder="https://script.google.com/macros/s/.../exec">
-      </div>
-      <div id="gsAktifBilgi" style="display:none;background:rgba(62,207,142,.08);border:1px solid var(--mint);border-radius:var(--r2);padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--mint);">
-        ✅ Google Sheets bağlı
-      </div>
-      <div class="row">
-        <button class="btn btn-sky" onclick="gsKaydet()">🔗 Bağlan & Kur</button>
-        <button class="btn btn-ghost btn-sm" onclick="gsBaglantiKes()" style="color:var(--ruby);">Bağlantıyı Kes</button>
-        <button class="btn btn-ghost" onclick="closeMo('moGS')">Kapat</button>
-      </div>
+    <div style="background:var(--ink3);border-radius:var(--r2);padding:12px;margin-bottom:14px;font-size:11px;color:var(--txt2);line-height:1.8;">
+      <strong style="color:var(--sun);">Mevcut Proje:</strong> barkod-sayim<br>
+      <strong style="color:var(--txt3);">Firebase config dosyaya gömülüdür.</strong><br>
+      Değiştirmek istiyorsanız aşağıya yeni config yapıştırın.
     </div>
 
-    <!-- Firebase paneli -->
-    <div id="ayarPanel-firebase" style="display:none;">
-      <div style="background:var(--ink3);border-radius:var(--r2);padding:12px;margin-bottom:12px;font-size:11px;color:var(--txt2);line-height:1.7;">
-        <strong style="color:var(--sun);">Nasıl kurulur?</strong><br>
-        1. <strong>firebase.google.com</strong> → Yeni proje oluştur<br>
-        2. Firestore Database → Create → europe-west1<br>
-        3. Rules → <code>allow read, write: if true</code> → Publish<br>
-        4. Project Settings → Web uygulaması → firebaseConfig kopyala<br>
-        5. Aşağıdaki alanlara yapıştır → Bağlan
-      </div>
-      <div class="grid g2" style="margin-bottom:10px;">
-        <div class="fg"><label>API Key</label><input id="fbApiKey" placeholder="AIzaSy..."></div>
-        <div class="fg"><label>Project ID</label><input id="fbProjectId" placeholder="isakaya-xxxxx"></div>
-        <div class="fg"><label>Auth Domain</label><input id="fbAuthDomain" placeholder="isakaya.firebaseapp.com"></div>
-        <div class="fg"><label>App ID</label><input id="fbAppId" placeholder="1:123:web:abc"></div>
-      </div>
-      <div style="font-size:10px;color:var(--txt3);margin-bottom:10px;">
-        💡 firebaseConfig kodunuzu yapıştırabilirsiniz:
-      </div>
-      <div class="fg" style="margin-bottom:12px;">
-        <label>firebaseConfig (JSON olarak yapıştır)</label>
-        <textarea id="fbConfigJson" rows="4" placeholder='{"apiKey":"...","projectId":"..."}' style="background:var(--ink3);border:1px solid var(--line);border-radius:var(--r2);color:var(--txt);font-family:var(--ff-mono);font-size:11px;padding:8px;width:100%;resize:vertical;" oninput="fbConfigParse()"></textarea>
-      </div>
-      <div id="fbAktifBilgi" style="display:none;background:rgba(240,166,0,.08);border:1px solid var(--sun);border-radius:var(--r2);padding:8px 12px;margin-bottom:12px;font-size:11px;color:var(--sun);">
-        🔥 Firebase bağlı
-      </div>
-      <div class="row">
-        <button class="btn btn-sun" onclick="fbKaydet()">🔥 Firebase Bağlan</button>
-        <button class="btn btn-ghost btn-sm" onclick="fbBaglantiKes()" style="color:var(--ruby);">Bağlantıyı Kes</button>
-        <button class="btn btn-ghost" onclick="closeMo('moGS')">Kapat</button>
-      </div>
+    <div class="fg" style="margin-bottom:10px;">
+      <label>API Key</label>
+      <input id="fbApiKey" placeholder="AIzaSy...">
+    </div>
+    <div class="grid g2" style="margin-bottom:10px;">
+      <div class="fg"><label>Project ID</label><input id="fbProjectId" placeholder="proje-id"></div>
+      <div class="fg"><label>Auth Domain</label><input id="fbAuthDomain" placeholder="proje.firebaseapp.com"></div>
+    </div>
+    <div class="fg" style="margin-bottom:10px;">
+      <label>App ID</label>
+      <input id="fbAppId" placeholder="1:123:web:abc">
     </div>
 
+    <div style="font-size:10px;color:var(--txt3);margin-bottom:6px;">💡 Veya firebaseConfig kodunu JSON olarak yapıştırın:</div>
+    <div class="fg" style="margin-bottom:14px;">
+      <textarea id="fbConfigJson" rows="3"
+        placeholder='{"apiKey":"...","projectId":"..."}'
+        style="background:var(--ink3);border:1px solid var(--line);border-radius:var(--r2);color:var(--txt);font-family:var(--ff-mono);font-size:11px;padding:8px;width:100%;resize:vertical;"
+        oninput="fbConfigParse()"></textarea>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-sun" onclick="fbKaydet()">🔥 Kaydet & Bağlan</button>
+      <button class="btn btn-ghost btn-sm" onclick="fbBaglantiKes()" style="color:var(--ruby);">Sıfırla</button>
+      <button class="btn btn-ghost" onclick="closeMo('moGS')">Kapat</button>
+    </div>
     <hr>
-    <p style="font-size:10px;color:var(--txt3);">Bağlantı olmadan veriler yalnızca bu tarayıcıda saklanır.</p>
+    <p style="font-size:10px;color:var(--txt3);">Firebase bağlantısı tüm cihazlarda veri senkronizasyonu sağlar.</p>
   </div>
 </div>
 
@@ -1636,13 +1602,10 @@ function girisYap() {
     if(sec) sec.classList.add('on');
   }
 
-  // Bagla kaynaktan taze veri cek
+  // Firebase'den taze veri cek
   if (db.fbConfig) {
     toast('Firebase veriler yukleniyor...','ok');
     fbInit().then(()=>fbSyncTumunu()).catch(e=>toast('Firebase hatasi','er'));
-  } else if (db.gsURL) {
-    toast('Veriler Google Sheets ten yukleniyor...','ok');
-    gsSyncTumunu().catch(e => toast('Sheets baglanti hatasi','er'));
   }
 }
 
@@ -1716,8 +1679,7 @@ function paraToUSD(tutar, para, tarih) {
   if (!oran) return tutar; // kur yoksa olduğu gibi bırak
   return tutar / oran;
 }
-let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'',
-  fbConfig:{
+let db = { stok:[], satislar:[], giderler:[], personeller:[], gruplar:['Yemek Giderleri','Kira','Faturalar','Nakliye','Diğer'], transferler:[], kurlar:[], ceksenetler:[], gsURL:'', fbConfig:{
     apiKey:"AIzaSyDE7WfuCipUM-MiH3TcgeXtMvWMhW9zjX8",
     authDomain:"barkod-sayim.firebaseapp.com",
     projectId:"barkod-sayim",
@@ -1807,36 +1769,21 @@ function openMo(id) {
   if(id==='moGS') {
     syncDurum();
     if(db.fbConfig) {
-      ayarTab('firebase', document.getElementById('ayarTab-firebase'));
       const cfg = db.fbConfig;
-      if(cfg.apiKey) document.getElementById('fbApiKey').value = cfg.apiKey;
-      if(cfg.projectId) document.getElementById('fbProjectId').value = cfg.projectId;
-      if(cfg.authDomain) document.getElementById('fbAuthDomain').value = cfg.authDomain;
-      if(cfg.appId) document.getElementById('fbAppId').value = cfg.appId;
-    } else {
-      ayarTab('sheets', document.getElementById('ayarTab-sheets'));
-      const gsEl = document.getElementById('gsURL');
-      if(gsEl && db.gsURL) gsEl.value = db.gsURL;
+      const fbApiKey = document.getElementById('fbApiKey');
+      const fbProjectId = document.getElementById('fbProjectId');
+      const fbAuthDomain = document.getElementById('fbAuthDomain');
+      const fbAppId = document.getElementById('fbAppId');
+      if(fbApiKey) fbApiKey.value = cfg.apiKey||'';
+      if(fbProjectId) fbProjectId.value = cfg.projectId||'';
+      if(fbAuthDomain) fbAuthDomain.value = cfg.authDomain||'';
+      if(fbAppId) fbAppId.value = cfg.appId||'';
     }
   }
 }
 
 function ayarAc(sekme) {
   openMo('moGS');
-  setTimeout(()=>{
-    ayarTab(sekme, document.getElementById('ayarTab-'+sekme));
-    if(sekme==='sheets' && db.gsURL) {
-      const el = document.getElementById('gsURL');
-      if(el) el.value = db.gsURL;
-    }
-    if(sekme==='firebase' && db.fbConfig) {
-      const cfg = db.fbConfig;
-      if(cfg.apiKey) document.getElementById('fbApiKey').value = cfg.apiKey;
-      if(cfg.projectId) document.getElementById('fbProjectId').value = cfg.projectId;
-      if(cfg.authDomain) document.getElementById('fbAuthDomain').value = cfg.authDomain;
-      if(cfg.appId) document.getElementById('fbAppId').value = cfg.appId;
-    }
-  }, 50);
 }
 function closeMo(id) { document.getElementById(id).classList.remove('on'); }
 
@@ -1905,28 +1852,14 @@ function fbBaglantiKes() {
 }
 
 function syncDurum() {
-  const dot     = document.getElementById('dot');
-  const dotFb   = document.getElementById('dotFb');
-  const txt     = document.getElementById('syncTxt');
-  const fbTxt   = document.getElementById('fbTxt');
-  const banner  = document.getElementById('kurulumBanner');
-  const gsEl    = document.getElementById('gsAktifBilgi');
-  const fbEl    = document.getElementById('fbAktifBilgi');
-
-  if(gsEl) gsEl.style.display = db.gsURL ? 'block' : 'none';
+  const dot    = document.getElementById('dot');
+  const txt    = document.getElementById('syncTxt');
+  const banner = document.getElementById('kurulumBanner');
+  const fbEl   = document.getElementById('fbAktifBilgi');
   if(fbEl) fbEl.style.display = db.fbConfig ? 'block' : 'none';
-
-  // Firebase dot
-  if(dotFb) dotFb.className = db.fbConfig ? 'sync-dot ok' : 'sync-dot';
-  if(fbTxt) fbTxt.textContent = db.fbConfig ? 'Bağlı' : 'Firebase';
-
-  // Google Sheets dot
-  if(dot)  dot.className  = db.gsURL ? 'sync-dot ok' : 'sync-dot';
-  if(txt)  txt.textContent = db.gsURL ? 'Bağlı' : 'Sheets';
-
-  if(banner) banner.style.display = (db.fbConfig||db.gsURL) ? 'none' : 'flex';
-  const gsURLEl = document.getElementById('gsURL');
-  if(gsURLEl && db.gsURL) gsURLEl.value = db.gsURL;
+  if(dot) dot.className = db.fbConfig ? 'sync-dot ok' : 'sync-dot';
+  if(txt) txt.textContent = db.fbConfig ? 'Bağlı' : 'Firebase';
+  if(banner) banner.style.display = db.fbConfig ? 'none' : 'flex';
 }
 
 async function gsSetup() {
